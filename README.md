@@ -1,6 +1,6 @@
 # FFmpegMinimal
 
-Minimal FFmpeg build for iOS with only WMA audio decoding support. Used by the [VoiceText](https://github.com/valcicivo) app to convert WMA files to M4A on-device before transcription.
+Minimal FFmpeg build for iOS — converts WMA audio files to M4A on-device.
 
 ## What's Included
 
@@ -14,19 +14,17 @@ Built from **FFmpeg 7.1** with `--disable-everything` and only these components 
 | ipod | Muxer | M4A container output |
 | file | Protocol | Local file I/O |
 
-Libraries included: `libavcodec`, `libavformat`, `libavutil`, `libswresample`
-
-Excluded: avdevice, avfilter, swscale, postproc, network, all video codecs, all other audio codecs.
+Libraries: `libavcodec`, `libavformat`, `libavutil`, `libswresample`
 
 ## Installation (SPM)
 
-Add this package in Xcode:
+Add in Xcode via **File > Add Package Dependencies**:
 
-1. **File > Add Package Dependencies**
-2. Enter: `https://github.com/valcicivo/FFmpegMinimal`
-3. Set version to **0.1.0** (or branch: `main`)
+```
+https://github.com/valcicivo/FFmpegMinimal
+```
 
-Or add to your `Package.swift`:
+Or in `Package.swift`:
 
 ```swift
 dependencies: [
@@ -34,49 +32,27 @@ dependencies: [
 ]
 ```
 
-Then import in Swift:
-
-```swift
-import FFmpegMinimal
-```
-
-All FFmpeg C APIs (`avformat_open_input`, `avcodec_find_decoder`, `swr_convert`, etc.) are available directly.
+Then `import FFmpegMinimal` to access the FFmpeg C APIs.
 
 ## Size
 
-- Compressed (zip): ~3.2 MB
-- Uncompressed (xcframework): ~8.6 MB (3 architectures)
-- App binary impact: ~2-3 MB (single architecture slice)
+- Compressed: ~3.2 MB
+- App binary impact: ~2-3 MB (single architecture)
 
-## Architectures
+## Rebuilding
 
-- `ios-arm64` (device)
-- `ios-arm64_x86_64-simulator` (Apple Silicon + Intel simulators)
-
-## Rebuilding the XCFrameworks
-
-If you need to rebuild from source (e.g., to add codecs or update FFmpeg):
+To rebuild from source (e.g., to update FFmpeg or add codecs):
 
 ```bash
 ./build-ffmpeg.sh
 ```
 
-This script will:
-1. Download FFmpeg 7.1 source
-2. Cross-compile for iOS device (arm64) and simulator (arm64 + x86_64)
-3. Merge into a single `FFmpegMinimal.xcframework`
-4. Output to `XCFrameworks/`
-
-After rebuilding, create a new release:
+Then create a new release:
 
 ```bash
-# Zip the xcframework
 zip -r FFmpegMinimal.xcframework.zip XCFrameworks/FFmpegMinimal.xcframework
-
-# Compute new checksum for Package.swift
 swift package compute-checksum FFmpegMinimal.xcframework.zip
-
-# Update the checksum in Package.swift, then:
+# Update checksum in Package.swift, then:
 gh release create <version> FFmpegMinimal.xcframework.zip --title "<version>"
 ```
 
